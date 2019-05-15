@@ -7,10 +7,13 @@
 #define LOG_LEVEL_WARN_DEF 3 
 #define LOG_LEVEL_INFO_DEF 4 
 #define LOG_LEVEL_DEBUG_DEF 5 
-#define LOG_LEVEL_TRACE_DEF 6 
+#define LOG_LEVEL_TRACE_DEF 6
 
-#define log(level,format) if(logp(level))write(logu,format)trim(logl(level,__FILE__,__LINE__))//" ",
-#define log_root(level,format) if(logp(level,0))write(logu,format)trim(logl(level,__FILE__,__LINE__))//" ",
+/* This is for having only the relative part of the string*/
+#define __FILENAME__ trim(__FILE__(scan(__FILE__, '/', .true.):))
+
+#define log(level,format) if(logp(level))write(logu,format)trim(logl(level,__FILENAME__,__LINE__))//" ",
+#define log_root(level,format) if(logp(level,0))write(logu,format)trim(logl(level,__FILENAME__,__LINE__))//" ",
 
 /* First four log levels */
 #define log_fatal(format) log(LOG_LEVEL_FATAL_DEF,format)
