@@ -1,6 +1,5 @@
 set (LIB_NAME flogging)
 file(GLOB sources ./*.f90)
-include_directories(../include)
 add_library ( ${LIB_NAME} ${sources})
 target_include_directories(${LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
@@ -43,4 +42,10 @@ set_target_properties ( ${LIB_NAME}
   PROPERTIES
   COMPILE_FLAGS "${CMAKE_Fortran_FLAGS} ${MPI_Fortran_COMPILE_FLAGS} ${ADDITIONAL_GCC_FLAGS}"
   LINK_FLAGS " ${MPI_Fortran_LINK_FLAGS}"
+  #Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+target_include_directories( ${LIB_NAME} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+enable_testing()
+add_subdirectory(./tests)
