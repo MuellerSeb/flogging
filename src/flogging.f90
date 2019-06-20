@@ -17,6 +17,9 @@ module flogging
 #define stdout 6
 #define stderr 0
 #endif
+#ifdef NAG
+  USE F90_UNIX_ENV, ONLY: isatty
+#endif
 
   implicit none
 
@@ -168,6 +171,7 @@ contains
     character(4)  :: linenum_lj ! left-justified line number
 
     logical :: show_colors = .false.
+    logical :: is_terminal = .false.
     i = 1
 
     ! Set level to 1 if it is too low, skip if too high
@@ -178,7 +182,12 @@ contains
     if (skip_terminal_check) then
       show_colors = .not. disable_colors
     else
-      show_colors = isatty(stdout) .and. .not. disable_colors
+#ifdef NAG
+      call isatty(stdout, is_terminal)
+#else
+      is_terminal = isatty(stdout)
+#endif
+      show_colors = is_terminal .and. .not. disable_colors
     endif
     ! This works in ifort and gfortran (log_unit is stdout here because log_lead is an internal string)
 

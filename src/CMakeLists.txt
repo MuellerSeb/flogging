@@ -36,6 +36,8 @@ endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 	set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
+	target_compile_definitions(${LIB_NAME} PRIVATE "-DNAG")
 endif()
 
 set_target_properties ( ${LIB_NAME}
