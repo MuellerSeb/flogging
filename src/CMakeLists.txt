@@ -20,8 +20,10 @@ if (CMAKE_WITH_MPI)
         endif()
 endif()
 # add some compiler flags based on ${LIB_NAME} module
-set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} -DENABLE_LOG_TRACE")
-set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_DEBUG} -DDISABLE_LOG_DEBUG")
+set(MY_DEBUG_OPTIONS "-DENABLE_LOG_TRACE")
+set(MY_RELEASE_OPTIONS "-DDISABLE_LOG_DEBUG")
+target_compile_options(${LIB_NAME} PUBLIC "$<$<CONFIG:DEBUG>:${MY_DEBUG_OPTIONS}>")
+target_compile_options(${LIB_NAME} PUBLIC "$<$<CONFIG:RELEASE>:${MY_RELEASE_OPTIONS}>")
 
 # ifort and gfortran need the flag -cpp to interpret definitions like -DMRM2MHM
 # the nag compiler is not able to interpret the flag -cpp but can interpret these definitions anyway
@@ -31,18 +33,18 @@ include(CheckFortranCompilerFlag)
 CHECK_Fortran_COMPILER_FLAG("-cpp" CPP_FLAG)
 # if the flag exists, we add it to the compilation flags
 if (CPP_FLAG)
-	set(ADDITIONAL_GCC_FLAGS "-cpp")
+	target_compile_options(${LIB_NAME} PUBLIC "-cpp")
 endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
-	set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffree-line-length-none")
+	target_compile_options(${LIB_NAME} PUBLIC "-ffree-line-length-none")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 	target_compile_definitions(${LIB_NAME} PRIVATE "-DNAG")
+	target_compile_options(${LIB_NAME} PUBLIC "-kind=byte")
 endif()
 
 set_target_properties ( ${LIB_NAME}
   PROPERTIES
-  COMPILE_FLAGS "${CMAKE_Fortran_FLAGS} ${MPI_Fortran_COMPILE_FLAGS} ${ADDITIONAL_GCC_FLAGS}"
   LINK_FLAGS " ${MPI_Fortran_LINK_FLAGS}"
   #Fortran_MODULE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
