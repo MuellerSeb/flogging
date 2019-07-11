@@ -25,13 +25,14 @@ module flogging
   implicit none
 
   ! Log levels
-  integer, public, parameter :: NUM_LOG_LEVELS = 6 !< 1 through 6 (fatal through trace)
+  integer, public, parameter :: NUM_LOG_LEVELS = 7 !< 1 through 6 (fatal through trace)
   integer, public, parameter :: LOG_FATAL = LOG_LEVEL_FATAL_DEF !< = 1, Runtime error causing termination
   integer, public, parameter :: LOG_ERROR = LOG_LEVEL_ERROR_DEF !< = 2, Runtime error
   integer, public, parameter :: LOG_WARN  = LOG_LEVEL_WARN_DEF !< = 3, Warning, but we can continue
   integer, public, parameter :: LOG_INFO  = LOG_LEVEL_INFO_DEF !< = 4, Interesting events
   integer, public, parameter :: LOG_DEBUG = LOG_LEVEL_DEBUG_DEF !< = 5, Detailed debug output, disable by compiling your program with -DDISABLE_LOG_DEBUG
   integer, public, parameter :: LOG_TRACE = LOG_LEVEL_TRACE_DEF   !< = 6, Extremely detailed output, compile your program with -DENABLE_LOG_TRACE to enable
+  integer, public, parameter :: LOG_SUBTRACE = LOG_LEVEL_SUBTRACE_DEF  !< = 7, More Extremely detailed output, compile your program with -DENABLE_LOG_TRACE to enable
 
   integer, public, save :: logu = stderr !< By default, log to stderr
   integer, public, save :: minimum_log_level = LOG_INFO !< Note that more critical means a lower number
@@ -64,10 +65,10 @@ module flogging
 
   ! These are the color codes corresponding to the loglevels above
   character(len=*), dimension(NUM_LOG_LEVELS), parameter :: color_codes = &
-      ["31", "31", "33", "32", "34", "36"]
+      ["31", "31", "33", "32", "34", "36", "36"]
   ! These are the styles corresponding to the loglevels above
   character(len=*), dimension(NUM_LOG_LEVELS), parameter :: style_codes = &
-      [bold, reset, reset, reset, reset, reset]
+      [bold, reset, reset, reset, reset, reset, reset]
 
   ! Colors for other output
   character(len=*), parameter :: level_color = "20"
@@ -295,6 +296,8 @@ contains
       log_severity = trim(log_severity) // "DEBUG"
     elseif (level .eq. LOG_TRACE) then
       log_severity = trim(log_severity) // "TRACE"
+    elseif (level .eq. LOG_SUBTRACE) then
+      log_severity = trim(log_severity) // "SUBTRACE"
     endif
     if (show_colors) call stput(log_severity, reset)
   end function log_severity

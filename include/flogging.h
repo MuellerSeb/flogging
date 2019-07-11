@@ -8,6 +8,7 @@
 #define LOG_LEVEL_INFO_DEF 4 
 #define LOG_LEVEL_DEBUG_DEF 5 
 #define LOG_LEVEL_TRACE_DEF 6
+#define LOG_LEVEL_SUBTRACE_DEF 7
 
 /* This is for having only the relative part of the string*/
 /*#define __FILENAME__ trim(__FILE__(len(__FILE__)-100:))*/
@@ -38,7 +39,11 @@
 #ifdef ENABLE_LOG_TRACE
 #define log_trace(format) log_macro(LOG_LEVEL_TRACE_DEF,format)
 #define log_trace_root(format) log_root(LOG_LEVEL_TRACE_DEF,format)
+#define log_subtrace(format) log_macro(LOG_LEVEL_SUBTRACE_DEF,format)
+#define log_subtrace_root(format) log_root(LOG_LEVEL_SUBTRACE_DEF,format)
 #else
 #define log_trace(format) if(.false.)write(logu,format)
 #define log_trace_root(format) if(.false.)write(logu,format)
+#define log_subtrace(format) if(.false.)write(logu,format)
+#define log_subtrace_root(format) if(.false.)write(logu,format)
 #endif
