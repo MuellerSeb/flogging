@@ -297,7 +297,7 @@ contains
     elseif (level .eq. LOG_TRACE) then
       log_severity = trim(log_severity) // "TRACE"
     elseif (level .eq. LOG_SUBTRACE) then
-      log_severity = trim(log_severity) // "SUBTRACE"
+      log_severity = trim(log_severity) // "FINE"
     endif
     if (show_colors) call stput(log_severity, reset)
   end function log_severity
