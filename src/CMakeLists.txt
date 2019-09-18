@@ -41,6 +41,8 @@ if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 	target_compile_definitions(${LIB_NAME} PRIVATE "-DNAG")
 	target_compile_options(${LIB_NAME} PUBLIC "-kind=byte")
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
+	target_compile_definitions(${LIB_NAME} PRIVATE "-DINTEL")
 endif()
 
 set_target_properties ( ${LIB_NAME}

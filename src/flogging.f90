@@ -21,6 +21,10 @@ module flogging
   USE F90_UNIX_ENV, ONLY: isatty
   USE F90_UNIX_ENV, only: gethostname
 #endif
+#ifdef INTEL
+  USE IFPORT, ONLY: isatty
+  USE IFPORT, only: hostnm
+#endif
 
   implicit none
 
@@ -257,10 +261,17 @@ contains
   !> Return the hostname in a 50 character string
   function log_hostname()
     character(len=50) log_hostname
+#ifdef INTEL
+    integer :: iError
+#endif
 #ifdef NAG
     call gethostname(log_hostname)
 #else
+#ifdef INTEL
+    iError = hostnm(log_hostname)
+#else
     call hostnm(log_hostname)
+#endif
 #endif
   end function log_hostname
 
