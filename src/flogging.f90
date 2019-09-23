@@ -69,7 +69,7 @@ module flogging
 
   ! These are the color codes corresponding to the loglevels above
   character(len=*), dimension(NUM_LOG_LEVELS), parameter :: color_codes = &
-      ["31", "31", "33", "32", "34", "36", "36"]
+      ["31", "31", "33", "32", "35", "36", "36"]
   ! These are the styles corresponding to the loglevels above
   character(len=*), dimension(NUM_LOG_LEVELS), parameter :: style_codes = &
       [bold, reset, reset, reset, reset, reset, reset]
