@@ -279,7 +279,6 @@ contains
 #else
     call hostnm(log_hostname)
 #endif
-#endif
   end function log_hostname
 
   !> Return n spaces
