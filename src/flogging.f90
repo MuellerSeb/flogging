@@ -18,12 +18,16 @@ module flogging
 #define stderr 0
 #endif
 #ifdef NAG
-  USE F90_UNIX_ENV, ONLY: isatty
-  USE F90_UNIX_ENV, only: gethostname
+  use f90_unix_env, only: isatty
+  use f90_unix_env, only: gethostname
 #endif
 #ifdef INTEL
-  USE IFPORT, ONLY: isatty
-  USE IFPORT, only: hostnm
+  use ifport, only: isatty
+  use ifport, only: hostnm
+#endif
+#ifdef PGI
+  use dfport, only: isatty
+  use dfwin, only: gethostname
 #endif
 
   implicit none
@@ -269,6 +273,9 @@ contains
 #else
 #ifdef INTEL
     iError = hostnm(log_hostname)
+#else
+#ifdef PGI
+    call gethostname(log_hostname)
 #else
     call hostnm(log_hostname)
 #endif

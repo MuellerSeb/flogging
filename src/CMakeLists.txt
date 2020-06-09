@@ -42,6 +42,8 @@ elseif(CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
 	target_compile_definitions(${LIB_NAME} PRIVATE "-DNAG")
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
 	target_compile_definitions(${LIB_NAME} PRIVATE "-DINTEL")
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "PGI")
+	target_compile_definitions(${LIB_NAME} PRIVATE "-DPGI")
 endif()
 
 set_target_properties ( ${LIB_NAME}
