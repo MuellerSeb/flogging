@@ -270,13 +270,14 @@ contains
 #endif
 #ifdef NAG
     call gethostname(log_hostname)
-#else
+#endif
 #ifdef INTEL
     iError = hostnm(log_hostname)
-#else
+#endif
 #ifdef PGI
     call gethostname(log_hostname)
-#else
+#endif
+#ifdef GFORTRAN
     call hostnm(log_hostname)
 #endif
   end function log_hostname
