@@ -10,10 +10,6 @@
 module flogging
   use :: vt100 ! For color output
 
-#if defined __INTEL_COMPILER
-  use ifport
-#endif
-
 #ifdef f2003
   use, intrinsic :: iso_fortran_env, only: stdin=>input_unit, stdout=>output_unit, stderr=>error_unit
 #else
@@ -21,17 +17,30 @@ module flogging
 #define stdout 6
 #define stderr 0
 #endif
+#ifdef NAG
+  use f90_unix_env, only: isatty
+  use f90_unix_env, only: gethostname
+#endif
+#ifdef INTEL
+  use ifport, only: isatty
+  use ifport, only: hostnm
+#endif
+#ifdef PGI
+  use dfport, only: isatty
+  use dfwin, only: gethostname
+#endif
 
   implicit none
 
   ! Log levels
-  integer, public, parameter :: NUM_LOG_LEVELS = 6 !< 1 through 6 (fatal through trace)
+  integer, public, parameter :: NUM_LOG_LEVELS = 7 !< 1 through 6 (fatal through trace)
   integer, public, parameter :: LOG_FATAL = LOG_LEVEL_FATAL_DEF !< = 1, Runtime error causing termination
   integer, public, parameter :: LOG_ERROR = LOG_LEVEL_ERROR_DEF !< = 2, Runtime error
   integer, public, parameter :: LOG_WARN  = LOG_LEVEL_WARN_DEF !< = 3, Warning, but we can continue
   integer, public, parameter :: LOG_INFO  = LOG_LEVEL_INFO_DEF !< = 4, Interesting events
   integer, public, parameter :: LOG_DEBUG = LOG_LEVEL_DEBUG_DEF !< = 5, Detailed debug output, disable by compiling your program with -DDISABLE_LOG_DEBUG
   integer, public, parameter :: LOG_TRACE = LOG_LEVEL_TRACE_DEF   !< = 6, Extremely detailed output, compile your program with -DENABLE_LOG_TRACE to enable
+  integer, public, parameter :: LOG_SUBTRACE = LOG_LEVEL_SUBTRACE_DEF  !< = 7, More Extremely detailed output, compile your program with -DENABLE_LOG_TRACE to enable
 
   integer, public, save :: logu = stderr !< By default, log to stderr
   integer, public, save :: minimum_log_level = LOG_INFO !< Note that more critical means a lower number
@@ -64,10 +73,10 @@ module flogging
 
   ! These are the color codes corresponding to the loglevels above
   character(len=*), dimension(NUM_LOG_LEVELS), parameter :: color_codes = &
-      ["31", "31", "33", "32", "34", "30"]
+      ["31", "31", "33", "32", "35", "36", "36"]
   ! These are the styles corresponding to the loglevels above
   character(len=*), dimension(NUM_LOG_LEVELS), parameter :: style_codes = &
-      [bold, reset, reset, reset, reset, reset]
+      [bold, reset, reset, reset, reset, reset, reset]
 
   ! Colors for other output
   character(len=*), parameter :: level_color = "20"
@@ -173,6 +182,7 @@ contains
     character(len=50) :: basename !< Basename stripped from filename
 
     logical :: show_colors = .false.
+    logical :: is_terminal = .false.
     i = 1
 
     ! Set level to 1 if it is too low, skip if too high
@@ -183,7 +193,12 @@ contains
     if (skip_terminal_check) then
       show_colors = .not. disable_colors
     else
-      show_colors = isatty(stdout) .and. .not. disable_colors
+#ifdef NAG
+      call isatty(stdout, is_terminal)
+#else
+      is_terminal = isatty(stdout)
+#endif
+      show_colors = is_terminal .and. .not. disable_colors
     endif
     ! This works in ifort and gfortran (log_unit is stdout here because log_lead is an internal string)
 
@@ -252,10 +267,19 @@ contains
   !> Return the hostname in a 50 character string
   function log_hostname()
     character(len=50) log_hostname
-#if defined __INTEL_COMPILER
-    integer(4) :: istat
-    istat = hostnm(log_hostname)
-#else
+#ifdef INTEL
+    integer :: iError
+#endif
+#ifdef NAG
+    call gethostname(log_hostname)
+#endif
+#ifdef INTEL
+    iError = hostnm(log_hostname)
+#endif
+#ifdef PGI
+    call gethostname(log_hostname)
+#endif
+#ifdef GFORTRAN
     call hostnm(log_hostname)
 #endif
   end function log_hostname
@@ -292,6 +316,8 @@ contains
       log_severity = trim(log_severity) // "DEBUG"
     elseif (level .eq. LOG_TRACE) then
       log_severity = trim(log_severity) // "TRACE"
+    elseif (level .eq. LOG_SUBTRACE) then
+      log_severity = trim(log_severity) // "FINE"
     endif
     if (show_colors) call stput(log_severity, reset)
   end function log_severity
