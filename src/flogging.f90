@@ -179,6 +179,7 @@ contains
     integer                         :: fn_len  !< Add extra spaces after part i
     integer       :: i,j !< The counter for the different parts
     character(4)  :: linenum_lj ! left-justified line number
+    character(len=50) :: basename !< Basename stripped from filename
 
     logical :: show_colors = .false.
     logical :: is_terminal = .false.
@@ -227,7 +228,8 @@ contains
 #endif
 
     if (present(filename) .and. output_fileline) then
-      log_tmp(i) = trim(log_tmp(i)) // trim(filename)
+      call strip_path(filename, basename)
+      log_tmp(i) = trim(log_tmp(i)) // trim(basename)
       if (present(linenum)) then
         ! Left-justify the line number and cap it to 4 characters
         write(linenum_lj, '(i4)') linenum
@@ -351,16 +353,33 @@ contains
 
     call date_and_time(date, time, zone)
     if (output_date .and. output_time) then
-      write(log_datetime, '(a,"/",a,"/",a," ",a,":",a,":",a," ")') date(1:4), date(5:6), date(7:8), &
-            time(1:2), time(3:4), time(5:6)
-    endif
-    if (output_time) then
-      write(log_datetime, '(a,":",a,":",a," ")') time(1:2), time(3:4), time(5:6)
-    endif
-    if (output_date) then
-      write(log_datetime, '(a,"/",a,"/",a," ")') date(1:4), date(5:6), date(7:8)
+      write(log_datetime, '(a,"/",a,"/",a," ",a,":",a,":",a,".",a," ")') date(1:4), date(5:6), date(7:8), &
+            time(1:2), time(3:4), time(5:6), time(8:10)
+    else
+      if (output_time) then
+        write(log_datetime, '(a,":",a,":",a,".",a," ")') time(1:2), time(3:4), time(5:6), time(8:10)
+      endif
+      if (output_date) then
+        write(log_datetime, '(a,"/",a,"/",a," ")') date(1:4), date(5:6), date(7:8)
+      endif
     endif
   end function log_datetime
+
+  subroutine strip_path(filepath, basename)
+    character(len=*), intent(in) :: filepath !< The path to be stripped
+    character(len=*), intent(out) :: basename !< The basename of the filepath
+
+    ! Internal parameters
+#ifndef WIN32
+    character(len=1) :: sep = '/' !< The path separator
+#else
+    character(len=1) :: sep = '\'
+#endif
+    integer :: last_sep_idx
+
+    last_sep_idx = index(filepath, sep, .true.)
+    basename = filepath(last_sep_idx+1:)
+  end subroutine
 
   !> Check the command-line arguments to set the default logging level
   !> and color settings.
