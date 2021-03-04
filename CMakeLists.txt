@@ -8,6 +8,11 @@ project(flogging Fortran)
 # automatically enables testing
 include(CTest)
 
+# turn off testing in case the Project is not the main
+if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    set(BUILD_TESTING OFF)
+endif()
+
 # library module specific settings
 add_subdirectory(./src)
 
