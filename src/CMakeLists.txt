@@ -3,21 +3,21 @@ file(GLOB sources ./*.f90)
 add_library ( ${LIB_NAME} ${sources})
 target_include_directories(${LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
-set(CMAKE_WITH_MPI OFF CACHE STRING "build the module with MPI, so it can be executed using mpirun")
+option(CMAKE_WITH_MPI "build the module with MPI, so it can be executed using mpirun")
 # if cmake provides a findLIBRARY module, this gets invoked via find_package(LIBRARY)
 if (CMAKE_WITH_MPI)
-        # find if there is an MPI setup on the system and if so, set corresponding variables
-        find_package(MPI)
-        if (NOT ${MPI_Fortran_FOUND})
-                message(FATAL_ERROR "MPI required but not found")
-        else()
-                message(STATUS "found MPI_Fortran_COMPILER ${MPI_Fortran_COMPILER}")
-                # set the preprocessor
-                target_compile_definitions(${LIB_NAME} PRIVATE "-DUSE_MPI")
-				# add the link to mpi if existing
-                target_link_libraries(${LIB_NAME} ${MPI_Fortran_LIBRARIES} )
-                target_include_directories(${LIB_NAME} PUBLIC ${MPI_Fortran_INCLUDE_PATH} )
-        endif()
+  # find if there is an MPI setup on the system and if so, set corresponding variables
+  find_package(MPI)
+  if (NOT ${MPI_Fortran_FOUND})
+    message(FATAL_ERROR "MPI required but not found")
+  else()
+    message(STATUS "found MPI_Fortran_COMPILER ${MPI_Fortran_COMPILER}")
+    # set the preprocessor
+    target_compile_definitions(${LIB_NAME} PRIVATE USE_MPI)
+    # add the link to mpi if existing
+    target_link_libraries(${LIB_NAME} ${MPI_Fortran_LIBRARIES} )
+    target_include_directories(${LIB_NAME} PUBLIC ${MPI_Fortran_INCLUDE_PATH} )
+  endif()
 endif()
 # add some compiler flags based on ${LIB_NAME} module
 set(MY_DEBUG_OPTIONS "-DENABLE_LOG_TRACE")
@@ -35,16 +35,22 @@ CHECK_Fortran_COMPILER_FLAG("-cpp" CPP_FLAG)
 if (CPP_FLAG)
 	target_compile_options(${LIB_NAME} PUBLIC "-cpp")
 endif()
+include(CheckFortranCompilerFlag)
+CHECK_Fortran_COMPILER_FLAG("-fpp" FPP_FLAG)
+# if the flag exists, we add it to the compilation flags
+if (FPP_FLAG)
+	target_compile_options(${LIB_NAME} PUBLIC "-fpp")
+endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 	target_compile_options(${LIB_NAME} PUBLIC "-ffree-line-length-none")
-	target_compile_definitions(${LIB_NAME} PRIVATE "-DGFORTRAN")
+	target_compile_definitions(${LIB_NAME} PRIVATE GFORTRAN)
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "NAG")
-	target_compile_definitions(${LIB_NAME} PRIVATE "-DNAG")
+	target_compile_definitions(${LIB_NAME} PRIVATE NAG)
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
-	target_compile_definitions(${LIB_NAME} PRIVATE "-DINTEL")
+	target_compile_definitions(${LIB_NAME} PRIVATE INTEL)
 elseif(CMAKE_Fortran_COMPILER_ID MATCHES "PGI")
-	target_compile_definitions(${LIB_NAME} PRIVATE "-DPGI")
+	target_compile_definitions(${LIB_NAME} PRIVATE PGI)
 endif()
 
 set_target_properties ( ${LIB_NAME}
