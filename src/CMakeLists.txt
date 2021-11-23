@@ -1,5 +1,5 @@
 set (LIB_NAME flogging)
-file(GLOB sources ./*.f90)
+file(GLOB sources ./*.*90)
 add_library ( ${LIB_NAME} ${sources})
 target_include_directories(${LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
@@ -24,23 +24,6 @@ set(MY_DEBUG_OPTIONS "-DENABLE_LOG_TRACE")
 set(MY_RELEASE_OPTIONS "-DDISABLE_LOG_DEBUG")
 target_compile_options(${LIB_NAME} PUBLIC "$<$<CONFIG:DEBUG>:${MY_DEBUG_OPTIONS}>")
 target_compile_options(${LIB_NAME} PUBLIC "$<$<CONFIG:RELEASE>:${MY_RELEASE_OPTIONS}>")
-
-# ifort and gfortran need the flag -cpp to interpret definitions like -DMRM2MHM
-# the nag compiler is not able to interpret the flag -cpp but can interpret these definitions anyway
-# so we check whether the compiler is able to use the flag -cpp
-# for that we need the module CheckFortranCompilerFlag
-include(CheckFortranCompilerFlag)
-CHECK_Fortran_COMPILER_FLAG("-cpp" CPP_FLAG)
-# if the flag exists, we add it to the compilation flags
-if (CPP_FLAG)
-	target_compile_options(${LIB_NAME} PUBLIC "-cpp")
-endif()
-include(CheckFortranCompilerFlag)
-CHECK_Fortran_COMPILER_FLAG("-fpp" FPP_FLAG)
-# if the flag exists, we add it to the compilation flags
-if (FPP_FLAG)
-	target_compile_options(${LIB_NAME} PUBLIC "-fpp")
-endif()
 
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
 	target_compile_options(${LIB_NAME} PUBLIC "-ffree-line-length-none")
