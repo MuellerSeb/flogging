@@ -1,5 +1,5 @@
 enable_testing()
-file ( GLOB sources ./test_*.f90)
+file ( GLOB sources ./test_*.F90)
 foreach ( UNIT_TEST ${sources} )
     # get the filename and use it for variable name
     get_filename_component ( test_name_ext ${UNIT_TEST} NAME )
