@@ -68,7 +68,7 @@ module flogging
   logical, save :: output_time         = .false.
   logical, save :: output_fileline     = .true.
   logical, save :: skip_terminal_check = .false.
-  logical, save :: disable_colors      = .false.
+  logical, save :: disable_colors      = .true.
   logical, save :: cla_checked         = .false. 
 
   ! These are the color codes corresponding to the loglevels above
